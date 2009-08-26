@@ -2,20 +2,20 @@
 
 Gem::Specification.new do |s|
   s.name = %q{components}
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Lance Ivy", "Alexander Lang"]
-  s.date = %q{2009-06-19}
+  s.date = %q{2009-08-26}
   s.email = %q{alex@upstream-berlin.com}
   s.extra_rdoc_files = [
-    "README"
+    "README.md"
   ]
   s.files = [
     ".document",
      ".gitignore",
      "MIT-LICENSE",
-     "README",
+     "README.md",
      "Rakefile",
      "VERSION.yml",
      "components.gemspec",
