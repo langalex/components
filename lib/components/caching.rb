@@ -159,6 +159,8 @@ module Components::Caching
           arg.to_param
       end
     end.join('/')
+    
+    key = Digest::MD5.hexdigest(key) if key.length > 200
 
     ActiveSupport::Cache.expand_cache_key(key, :components)
   end

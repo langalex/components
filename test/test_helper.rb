@@ -19,6 +19,6 @@ RAILS_DEFAULT_LOGGER = Logger.new(File.dirname(__FILE__) + '/debug.log')
   ActiveSupport::Dependencies.load_paths << File.dirname(__FILE__) + "/" + load_path
 end
 
-require File.dirname(__FILE__) + '/../init'
+require File.dirname(__FILE__) + '/../rails/init'
 
 ActionController::Base.cache_store = :memory_store

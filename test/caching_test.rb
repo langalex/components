@@ -19,6 +19,7 @@ class CachingTest < Test::Unit::TestCase
     assert_equal "components/hello_world/say_it/trumpapum", @component.send(:cache_key, :say_it, ["trumpapum"]), "uses arguments"
     assert_equal "components/hello_world/say_it/a/1/2/3/foo=bar", @component.send(:cache_key, :say_it, ["a", [1,2,3], {:foo => :bar}]), "handles mixed types"
     assert_equal "components/hello_world/say_it/a=1&b=2", @component.send(:cache_key, :say_it, [{:b => 2, :a => 1}]), "hash keys are ordered"
+    assert_equal "components/834876df77918cf2bbfb42253d5977aa", @component.send(:cache_key, :say_it, [{:a => 'x' * 190}]), "hash keys are MD5ed when too long"
   end
 
   def test_conditional_caching
