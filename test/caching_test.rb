@@ -51,4 +51,10 @@ class CachingTest < Test::Unit::TestCase
     @component.expects(:some_named_method).with("rangleratta").returns(314)
     assert_equal "components/hello_world/say_it/rangleratta/v314", @component.send(:cache_key, :say_it, ["rangleratta"])
   end
+  
+  def test_versioned_keys_dont_have_spaces
+    @component.say_it_cache_options = {:version => :some_named_method}
+    @component.expects(:some_named_method).with("rangleratta").returns('2009 10 31')
+    assert_equal "components/hello_world/say_it/rangleratta/v2009_10_31", @component.send(:cache_key, :say_it, ["rangleratta"])
+  end
 end

@@ -158,7 +158,7 @@ module Components::Caching
         else
           arg.to_param
       end
-    end.join('/')
+    end.join('/').gsub(' ', '_')
     
     key = Digest::MD5.hexdigest(key) if key.length > 200
 
