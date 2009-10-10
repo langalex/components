@@ -3,6 +3,7 @@ module Components #:nodoc:
     klass, method = name.split('/')
     component = (klass + "_component").camelcase.constantize.new
     component.form_authenticity_token = options[:form_authenticity_token]
+    component._request = options[:request]
     merge_standard_component_options!(component_args, options[:standard_component_options], component.method(method).arity)
     component.logger.debug "Rendering component #{name}"
     component.send(method, *component_args).to_s
@@ -40,7 +41,8 @@ module Components #:nodoc:
     def component(name, *args)
       Components.render(name, args,
         :form_authenticity_token => (form_authenticity_token if protect_against_forgery?),
-        :standard_component_options => standard_component_options
+        :standard_component_options => standard_component_options,
+        :request => request
       )
     end
 
@@ -77,7 +79,9 @@ module Components #:nodoc:
     def component(name, *args)
       Components.render(name, args,
         :form_authenticity_token => (form_authenticity_token if protect_against_forgery?),
-        :standard_component_options => controller.send(:standard_component_options)
+        :standard_component_options => controller.send(:standard_component_options),
+        :controller => controller,
+        :request => request
       )
     end
   end

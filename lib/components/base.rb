@@ -5,8 +5,9 @@ module Components
     include ::Components::Caching
 
     # for request forgery protection compatibility
-    attr_accessor :form_authenticity_token #:nodoc:
+    attr_accessor :form_authenticity_token, :_request #:nodoc:
     delegate :request_forgery_protection_token, :allow_forgery_protection, :to => "ActionController::Base"
+
     def protect_against_forgery? #:nodoc:
       allow_forgery_protection && request_forgery_protection_token
     end
@@ -27,6 +28,8 @@ module Components
         @path ||= self.to_s.sub("Component", "").underscore
       end
       alias_method :controller_path, :path
+
+      attr_accessor :template
     end
 
     # must be public for access from ActionView
@@ -71,28 +74,37 @@ module Components
 
       # pick the closest parent component with the file
       component = self.class
-      unless file.include?("/")
-        until exists?("#{component.path}/#{file}") or component.superclass == Components::Base
+      result = nil
+      if file.include?("/")
+        result = render_template("#{component.path}/#{file}")
+      else
+        until result
+          if component.superclass == Components::Base
+            result = render_template("#{component.path}/#{file}")
+          else
+            result = render_template("#{component.path}/#{file}") rescue nil
+          end
           component = component.superclass
         end
       end
-
-      template.render(:file => "#{component.path}/#{file}")
+      result
     end
 
     # creates and returns a view object for rendering the current action.
-    # note that this freezes knowledge of view_paths and assigns.
+    # note that this freezes knowledge of view_paths
     def template #:nodoc:
-      if @template.nil?
-        @template = Components::View.new(self.class.view_paths, assigns_for_view, self)
-        @template.extend self.class.master_helper_module
+      template = self.class.template
+      if template.nil?
+        view_paths = self.class.view_paths
+        template = Components::View.new(view_paths, assigns_for_view, self)
+        template.extend self.class.master_helper_module
       end
-      @template
+      self.class.template = template
     end
 
     # should return a hash of all instance variables to assign to the view
     def assigns_for_view #:nodoc:
-      @assigns_for_view ||= (instance_variables - unassignable_instance_variables).inject({}) do |hash, var|
+      (instance_variables - unassignable_instance_variables).inject({}) do |hash, var|
         hash[var[1..-1]] = instance_variable_get(var)
         hash
       end
@@ -105,10 +117,10 @@ module Components
     
     private
     
-    def exists?(name)
-      template.render(:file => name)
-    rescue ::ActionView::MissingTemplate
-      false
+    def render_template(name)
+      template.controller = self
+      template.send('_copy_ivars_from_controller')
+      template.render({:file => name}, assigns_for_view)
     end
   end
 end
